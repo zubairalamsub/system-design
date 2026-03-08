@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const C = {
   bg: "#080b12",
@@ -82,34 +83,44 @@ function FrameworkContent() {
               <span style={{ flex:1, color:C.text, fontWeight:700, fontSize:14 }}>{s.title}</span>
               <span style={{ color:C.muted, fontSize:20, transform:open===i?"rotate(90deg)":"none", transition:"transform 0.2s" }}>›</span>
             </div>
-            {open===i && (
-              <div style={{ padding:"0 18px 18px 58px" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
-                  <div style={{ background:C.bg, borderRadius:10, padding:14 }}>
-                    <div style={{ color:s.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>FUNCTIONAL CHECKLIST</div>
-                    {s.functional.map((f, j) => (
-                      <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
-                        <span style={{ color:s.color, flexShrink:0 }}>□</span>
-                        <span style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{f}</span>
+            <AnimatePresence initial={false}>
+              {open===i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div style={{ padding:"0 18px 18px 58px" }}>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
+                      <div style={{ background:C.bg, borderRadius:10, padding:14 }}>
+                        <div style={{ color:s.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>FUNCTIONAL CHECKLIST</div>
+                        {s.functional.map((f, j) => (
+                          <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
+                            <span style={{ color:s.color, flexShrink:0 }}>□</span>
+                            <span style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{f}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <div style={{ background:C.bg, borderRadius:10, padding:14 }}>
-                    <div style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>NON-FUNCTIONAL CHECKLIST</div>
-                    {s.nonfunctional.map((f, j) => (
-                      <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
-                        <span style={{ color:C.blue, flexShrink:0 }}>□</span>
-                        <span style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{f}</span>
+                      <div style={{ background:C.bg, borderRadius:10, padding:14 }}>
+                        <div style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>NON-FUNCTIONAL CHECKLIST</div>
+                        {s.nonfunctional.map((f, j) => (
+                          <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
+                            <span style={{ color:C.blue, flexShrink:0 }}>□</span>
+                            <span style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{f}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                    <div style={{ background:`${s.color}15`, border:`1px solid ${s.color}33`, borderRadius:8, padding:"10px 14px" }}>
+                      <span style={{ color:s.color, fontSize:11, fontWeight:800 }}>💡 PRO TIP  </span>
+                      <span style={{ color:C.text, fontSize:13 }}>{s.tip}</span>
+                    </div>
                   </div>
-                </div>
-                <div style={{ background:`${s.color}15`, border:`1px solid ${s.color}33`, borderRadius:8, padding:"10px 14px" }}>
-                  <span style={{ color:s.color, fontSize:11, fontWeight:800 }}>💡 PRO TIP  </span>
-                  <span style={{ color:C.text, fontSize:13 }}>{s.tip}</span>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -189,15 +200,25 @@ function ConceptsContent() {
               <span style={{ flex:1, color:C.text, fontWeight:600, fontSize:14 }}>{item.term}</span>
               <span style={{ color:C.muted }}>{selItem===i?"▴":"▾"}</span>
             </div>
-            {selItem===i && (
-              <div style={{ padding:"0 16px 14px 44px" }}>
-                <p style={{ color:C.muted, fontSize:13, lineHeight:1.7, margin:"0 0 10px" }}>{item.def}</p>
-                <div style={{ background:`${g.color}15`, borderRadius:8, padding:"8px 12px", display:"inline-block" }}>
-                  <span style={{ color:g.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>WHY IT MATTERS  </span>
-                  <span style={{ color:C.text, fontSize:13 }}>{item.why}</span>
-                </div>
-              </div>
-            )}
+            <AnimatePresence initial={false}>
+              {selItem===i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div style={{ padding:"0 16px 14px 44px" }}>
+                    <p style={{ color:C.muted, fontSize:13, lineHeight:1.7, margin:"0 0 10px" }}>{item.def}</p>
+                    <div style={{ background:`${g.color}15`, borderRadius:8, padding:"8px 12px", display:"inline-block" }}>
+                      <span style={{ color:g.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>WHY IT MATTERS  </span>
+                      <span style={{ color:C.text, fontSize:13 }}>{item.why}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -286,31 +307,41 @@ function ComponentsContent() {
               </div>
               <span style={{ color:C.muted }}>{sel===i?"▴":"▾"}</span>
             </div>
-            {sel===i && (
-              <div style={{ padding:"0 16px 16px" }}>
-                <div style={{ marginBottom:8 }}>
-                  <span style={{ color:c.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>WHEN  </span>
-                  <span style={{ color:C.muted, fontSize:13 }}>{c.when}</span>
-                </div>
-                <div style={{ marginBottom:8 }}>
-                  <span style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>HOW  </span>
-                  <span style={{ color:C.muted, fontSize:13 }}>{c.how}</span>
-                </div>
-                <div style={{ marginBottom:10 }}>
-                  <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:5 }}>KEY TECHNIQUES</div>
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                    {c.algorithms.map((a, j) => <Tag key={j} t={a} c={c.color} />)}
+            <AnimatePresence initial={false}>
+              {sel===i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div style={{ padding:"0 16px 16px" }}>
+                    <div style={{ marginBottom:8 }}>
+                      <span style={{ color:c.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>WHEN  </span>
+                      <span style={{ color:C.muted, fontSize:13 }}>{c.when}</span>
+                    </div>
+                    <div style={{ marginBottom:8 }}>
+                      <span style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>HOW  </span>
+                      <span style={{ color:C.muted, fontSize:13 }}>{c.how}</span>
+                    </div>
+                    <div style={{ marginBottom:10 }}>
+                      <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:5 }}>KEY TECHNIQUES</div>
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                        {c.algorithms.map((a, j) => <Tag key={j} t={a} c={c.color} />)}
+                      </div>
+                    </div>
+                    <div style={{ background:`${C.red}12`, border:`1px solid ${C.red}2a`, borderRadius:8, padding:"8px 12px", marginBottom:10 }}>
+                      <span style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>⚠ TRADE-OFF  </span>
+                      <span style={{ color:C.text, fontSize:13 }}>{c.tradeoff}</span>
+                    </div>
+                    <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+                      {c.examples.map((e, j) => <Tag key={j} t={e} c={C.muted} />)}
+                    </div>
                   </div>
-                </div>
-                <div style={{ background:`${C.red}12`, border:`1px solid ${C.red}2a`, borderRadius:8, padding:"8px 12px", marginBottom:10 }}>
-                  <span style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>⚠ TRADE-OFF  </span>
-                  <span style={{ color:C.text, fontSize:13 }}>{c.tradeoff}</span>
-                </div>
-                <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
-                  {c.examples.map((e, j) => <Tag key={j} t={e} c={C.muted} />)}
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -538,31 +569,41 @@ function PatternsContent() {
               </div>
               <span style={{ color:C.muted }}>{sel===p.name?"▴":"▾"}</span>
             </div>
-            {sel===p.name && (
-              <div style={{ padding:"0 16px 16px" }}>
-                <div style={{ background:`${C.red}0f`, borderRadius:8, padding:"10px 12px", marginBottom:8 }}>
-                  <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:4 }}>PROBLEM</div>
-                  <div style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{p.problem}</div>
-                </div>
-                <div style={{ background:`${C.green}0f`, borderRadius:8, padding:"10px 12px", marginBottom:8 }}>
-                  <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:4 }}>SOLUTION</div>
-                  <div style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{p.solution}</div>
-                </div>
-                <div style={{ marginBottom:8 }}>
-                  <div style={{ color:p.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:6 }}>STATES / MECHANICS</div>
-                  {p.states.map((s, j) => (
-                    <div key={j} style={{ display:"flex", gap:8, marginBottom:4 }}>
-                      <span style={{ color:p.color, flexShrink:0 }}>→</span>
-                      <span style={{ color:C.muted, fontSize:13 }}>{s}</span>
+            <AnimatePresence initial={false}>
+              {sel===p.name && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div style={{ padding:"0 16px 16px" }}>
+                    <div style={{ background:`${C.red}0f`, borderRadius:8, padding:"10px 12px", marginBottom:8 }}>
+                      <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:4 }}>PROBLEM</div>
+                      <div style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{p.problem}</div>
                     </div>
-                  ))}
-                </div>
-                <div style={{ background:C.bg, borderRadius:8, padding:"10px 12px", marginBottom:10, fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.green, lineHeight:1.7, whiteSpace:"pre-wrap", overflowX:"auto" }}>{p.code}</div>
-                <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                  {p.tools.map((t, j) => <Tag key={j} t={t} c={p.color} />)}
-                </div>
-              </div>
-            )}
+                    <div style={{ background:`${C.green}0f`, borderRadius:8, padding:"10px 12px", marginBottom:8 }}>
+                      <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:4 }}>SOLUTION</div>
+                      <div style={{ color:C.muted, fontSize:13, lineHeight:1.5 }}>{p.solution}</div>
+                    </div>
+                    <div style={{ marginBottom:8 }}>
+                      <div style={{ color:p.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:6 }}>STATES / MECHANICS</div>
+                      {p.states.map((s, j) => (
+                        <div key={j} style={{ display:"flex", gap:8, marginBottom:4 }}>
+                          <span style={{ color:p.color, flexShrink:0 }}>→</span>
+                          <span style={{ color:C.muted, fontSize:13 }}>{s}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background:C.bg, borderRadius:8, padding:"10px 12px", marginBottom:10, fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.green, lineHeight:1.7, whiteSpace:"pre-wrap", overflowX:"auto" }}>{p.code}</div>
+                    <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                      {p.tools.map((t, j) => <Tag key={j} t={t} c={p.color} />)}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -900,49 +941,59 @@ function QuestionsContent() {
               </div>
               <span style={{ color:C.muted, marginLeft:8 }}>{sel===q.name?"▴":"▾"}</span>
             </div>
-            {sel===q.name && (
-              <div style={{ padding:"0 18px 18px" }}>
-                <div style={{ background:`${q.color}0a`, borderRadius:10, padding:"10px 14px", marginBottom:12, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:q.color }}>
-                  📊 {q.scale}
-                </div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
-                  <div style={{ background:C.bg, borderRadius:10, padding:12 }}>
-                    <div style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>REQUIREMENTS</div>
-                    {q.requirements.map((r, j) => (
-                      <div key={j} style={{ display:"flex", gap:6, marginBottom:4 }}>
-                        <span style={{ color:C.blue }}>•</span>
-                        <span style={{ color:C.muted, fontSize:12 }}>{r}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ background:C.bg, borderRadius:10, padding:12 }}>
-                    <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>BOTTLENECKS</div>
-                    {q.bottlenecks.map((b, j) => (
-                      <div key={j} style={{ display:"flex", gap:6, marginBottom:4 }}>
-                        <span style={{ color:C.red }}>⚡</span>
-                        <span style={{ color:C.muted, fontSize:12 }}>{b}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ background:C.surface2, borderRadius:10, padding:12, marginBottom:12 }}>
-                  <div style={{ color:q.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>ARCHITECTURE APPROACH</div>
-                  {q.architecture.map((a, j) => (
-                    <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
-                      <span style={{ color:q.color, flexShrink:0, fontWeight:700 }}>{j+1}.</span>
-                      <span style={{ color:C.text, fontSize:13, lineHeight:1.5 }}>{a}</span>
+            <AnimatePresence initial={false}>
+              {sel===q.name && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div style={{ padding:"0 18px 18px" }}>
+                    <div style={{ background:`${q.color}0a`, borderRadius:10, padding:"10px 14px", marginBottom:12, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:q.color }}>
+                      📊 {q.scale}
                     </div>
-                  ))}
-                </div>
-                <div style={{ background:C.bg, borderRadius:8, padding:"10px 14px", marginBottom:10, fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.green }}>
-                  <span style={{ color:C.muted, fontWeight:800 }}>SCHEMA: </span>{q.schema}
-                </div>
-                <div style={{ background:`${C.accent}15`, border:`1px solid ${C.accent}33`, borderRadius:8, padding:"10px 14px" }}>
-                  <span style={{ color:C.accent, fontSize:11, fontWeight:800 }}>🎯 TRICKY PART  </span>
-                  <span style={{ color:C.text, fontSize:13 }}>{q.tricky}</span>
-                </div>
-              </div>
-            )}
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+                      <div style={{ background:C.bg, borderRadius:10, padding:12 }}>
+                        <div style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>REQUIREMENTS</div>
+                        {q.requirements.map((r, j) => (
+                          <div key={j} style={{ display:"flex", gap:6, marginBottom:4 }}>
+                            <span style={{ color:C.blue }}>•</span>
+                            <span style={{ color:C.muted, fontSize:12 }}>{r}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ background:C.bg, borderRadius:10, padding:12 }}>
+                        <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>BOTTLENECKS</div>
+                        {q.bottlenecks.map((b, j) => (
+                          <div key={j} style={{ display:"flex", gap:6, marginBottom:4 }}>
+                            <span style={{ color:C.red }}>⚡</span>
+                            <span style={{ color:C.muted, fontSize:12 }}>{b}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ background:C.surface2, borderRadius:10, padding:12, marginBottom:12 }}>
+                      <div style={{ color:q.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>ARCHITECTURE APPROACH</div>
+                      {q.architecture.map((a, j) => (
+                        <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
+                          <span style={{ color:q.color, flexShrink:0, fontWeight:700 }}>{j+1}.</span>
+                          <span style={{ color:C.text, fontSize:13, lineHeight:1.5 }}>{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background:C.bg, borderRadius:8, padding:"10px 14px", marginBottom:10, fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.green }}>
+                      <span style={{ color:C.muted, fontWeight:800 }}>SCHEMA: </span>{q.schema}
+                    </div>
+                    <div style={{ background:`${C.accent}15`, border:`1px solid ${C.accent}33`, borderRadius:8, padding:"10px 14px" }}>
+                      <span style={{ color:C.accent, fontSize:11, fontWeight:800 }}>🎯 TRICKY PART  </span>
+                      <span style={{ color:C.text, fontSize:13 }}>{q.tricky}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -994,39 +1045,49 @@ function TradeoffsContent() {
               <span style={{ color:t.color, fontWeight:800, fontSize:15, flex:1 }}>{t.title}</span>
               <span style={{ color:C.muted }}>{sel===i?"▴":"▾"}</span>
             </div>
-            {sel===i && (
-              <div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr" }}>
-                  {[t.sql, t.nosql].map((side, j) => (
-                    <div key={j} style={{ padding:"16px 18px", borderRight:j===0?`1px solid ${C.border}`:"none" }}>
-                      <div style={{ color:j===0?t.color:C.blue, fontWeight:700, fontSize:13, marginBottom:12 }}>{side.label}</div>
-                      <div style={{ marginBottom:6 }}>
-                        <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:5 }}>✅ PROS</div>
-                        {side.pros.map((p, k) => (
-                          <div key={k} style={{ display:"flex", gap:6, marginBottom:3 }}>
-                            <span style={{ color:C.green, flexShrink:0, fontSize:12 }}>+</span>
-                            <span style={{ color:C.muted, fontSize:12 }}>{p}</span>
+            <AnimatePresence initial={false}>
+              {sel===i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr" }}>
+                      {[t.sql, t.nosql].map((side, j) => (
+                        <div key={j} style={{ padding:"16px 18px", borderRight:j===0?`1px solid ${C.border}`:"none" }}>
+                          <div style={{ color:j===0?t.color:C.blue, fontWeight:700, fontSize:13, marginBottom:12 }}>{side.label}</div>
+                          <div style={{ marginBottom:6 }}>
+                            <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:5 }}>✅ PROS</div>
+                            {side.pros.map((p, k) => (
+                              <div key={k} style={{ display:"flex", gap:6, marginBottom:3 }}>
+                                <span style={{ color:C.green, flexShrink:0, fontSize:12 }}>+</span>
+                                <span style={{ color:C.muted, fontSize:12 }}>{p}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                      <div>
-                        <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:5 }}>❌ CONS</div>
-                        {side.cons.map((c, k) => (
-                          <div key={k} style={{ display:"flex", gap:6, marginBottom:3 }}>
-                            <span style={{ color:C.red, flexShrink:0, fontSize:12 }}>-</span>
-                            <span style={{ color:C.muted, fontSize:12 }}>{c}</span>
+                          <div>
+                            <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:5 }}>❌ CONS</div>
+                            {side.cons.map((c, k) => (
+                              <div key={k} style={{ display:"flex", gap:6, marginBottom:3 }}>
+                                <span style={{ color:C.red, flexShrink:0, fontSize:12 }}>-</span>
+                                <span style={{ color:C.muted, fontSize:12 }}>{c}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div style={{ padding:"12px 18px", borderTop:`1px solid ${C.border}`, background:`${t.color}08` }}>
-                  <span style={{ color:t.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>🎯 VERDICT  </span>
-                  <span style={{ color:C.text, fontSize:13 }}>{t.verdict}</span>
-                </div>
-              </div>
-            )}
+                    <div style={{ padding:"12px 18px", borderTop:`1px solid ${C.border}`, background:`${t.color}08` }}>
+                      <span style={{ color:t.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>🎯 VERDICT  </span>
+                      <span style={{ color:C.text, fontSize:13 }}>{t.verdict}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -1204,9 +1265,19 @@ function TipsContent() {
                     <span style={{ color:section.color, fontSize:14, marginTop:1 }}>›</span>
                     <div style={{ flex:1 }}>
                       <span style={{ color:C.text, fontSize:13, fontWeight:600 }}>{item.title}</span>
-                      {sel===`${i}-${j}` && (
-                        <div style={{ color:C.muted, fontSize:13, lineHeight:1.6, marginTop:6 }}>{item.body}</div>
-                      )}
+                      <AnimatePresence initial={false}>
+                        {sel===`${i}-${j}` && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                            style={{ overflow: "hidden" }}
+                          >
+                            <div style={{ color:C.muted, fontSize:13, lineHeight:1.6, marginTop:6 }}>{item.body}</div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
                 </div>
