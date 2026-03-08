@@ -1,25 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const C = {
-  bg: "#080b12",
-  surface: "#0f1320",
-  surface2: "#161b2e",
-  border: "#1c2238",
-  borderHov: "#2a3050",
-  accent: "#e8a020",
-  accentDim: "#b07818",
-  text: "#dde2f0",
-  muted: "#68728f",
-  dim: "#3d4460",
-  green: "#22c78a",
-  blue: "#4a9eed",
-  red: "#e05555",
-  purple: "#9a6fe0",
-  pink: "#d46abf",
-  teal: "#3ac8c8",
-  orange: "#e07740",
+// Theme definitions
+const themes = {
+  dark: {
+    name: "Dark",
+    icon: "🌙",
+    bg: "#080b12",
+    surface: "#0f1320",
+    surface2: "#161b2e",
+    border: "#1c2238",
+    borderHov: "#2a3050",
+    accent: "#e8a020",
+    accentDim: "#b07818",
+    text: "#dde2f0",
+    muted: "#68728f",
+    dim: "#3d4460",
+    green: "#22c78a",
+    blue: "#4a9eed",
+    red: "#e05555",
+    purple: "#9a6fe0",
+    pink: "#d46abf",
+    teal: "#3ac8c8",
+    orange: "#e07740",
+  },
+  light: {
+    name: "Light",
+    icon: "☀️",
+    bg: "#f5f7fa",
+    surface: "#ffffff",
+    surface2: "#f0f2f5",
+    border: "#e1e4e8",
+    borderHov: "#d1d5db",
+    accent: "#e8a020",
+    accentDim: "#d99419",
+    text: "#1a1f36",
+    muted: "#6b7280",
+    dim: "#9ca3af",
+    green: "#10b981",
+    blue: "#3b82f6",
+    red: "#ef4444",
+    purple: "#8b5cf6",
+    pink: "#ec4899",
+    teal: "#14b8a6",
+    orange: "#f97316",
+  },
+  midnight: {
+    name: "Midnight",
+    icon: "🌌",
+    bg: "#0a0e27",
+    surface: "#141937",
+    surface2: "#1a2342",
+    border: "#1f2d5a",
+    borderHov: "#2d3f7a",
+    accent: "#60a5fa",
+    accentDim: "#3b82f6",
+    text: "#e0e7ff",
+    muted: "#818cf8",
+    dim: "#4c4f7a",
+    green: "#34d399",
+    blue: "#60a5fa",
+    red: "#f87171",
+    purple: "#a78bfa",
+    pink: "#f472b6",
+    teal: "#2dd4bf",
+    orange: "#fb923c",
+  },
 };
+
+const C = themes.dark; // Default theme for module scope
 
 const Tag = ({ t, c }) => (
   <span style={{ display:"inline-block", padding:"2px 9px", borderRadius:20, background:`${c}1a`, border:`1px solid ${c}40`, color:c, fontSize:11, fontWeight:700, fontFamily:"'JetBrains Mono',monospace", whiteSpace:"nowrap" }}>{t}</span>
@@ -2143,26 +2192,129 @@ function NetworkingContent() {
 }
 
 // ───────── MAIN APP ─────────
-const navItems = [
-  { id:"framework", icon:"⚡", label:"Framework", color:C.accent },
-  { id:"concepts", icon:"🧠", label:"Concepts", color:C.blue },
-  { id:"components", icon:"🧩", label:"Components", color:C.green },
-  { id:"databases", icon:"🗄️", label:"Databases", color:C.purple },
-  { id:"patterns", icon:"📐", label:"Patterns", color:C.red },
-  { id:"networking", icon:"🌐", label:"Networking", color:C.blue },
-  { id:"questions", icon:"🏗️", label:"Questions", color:C.pink },
-  { id:"tradeoffs", icon:"⚖️", label:"Trade-offs", color:C.teal },
-  { id:"numbers", icon:"🔢", label:"Numbers", color:C.orange },
-  { id:"tips", icon:"🎯", label:"Pro Tips", color:C.red },
-];
+// Theme Switcher Component
+const ThemeSwitcher = ({ currentTheme, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const C = themes[currentTheme];
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 8,
+          border: `1px solid ${C.border}`,
+          background: C.surface,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          fontSize: 18,
+          padding: 0,
+          transition: 'all 0.2s'
+        }}
+        title="Change theme"
+      >
+        {themes[currentTheme].icon}
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            onClick={() => setIsOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 998
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 44,
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: 12,
+              padding: 8,
+              minWidth: 180,
+              zIndex: 999,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+            }}
+          >
+            <div style={{ color: C.muted, fontSize: 10, fontWeight: 800, fontFamily: "'JetBrains Mono',monospace", letterSpacing: 1, marginBottom: 6, padding: '0 8px' }}>THEME</div>
+            {Object.entries(themes).map(([key, theme]) => (
+              <button
+                key={key}
+                onClick={() => {
+                  onChange(key);
+                  setIsOpen(false);
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '8px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: currentTheme === key ? `${C.accent}18` : 'transparent',
+                  color: currentTheme === key ? C.accent : C.text,
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: currentTheme === key ? 700 : 500,
+                  textAlign: 'left',
+                  transition: 'all 0.15s',
+                  marginBottom: 2
+                }}
+              >
+                <span style={{ fontSize: 16 }}>{theme.icon}</span>
+                <span style={{ flex: 1 }}>{theme.name}</span>
+                {currentTheme === key && <span style={{ color: C.accent, fontSize: 16 }}>✓</span>}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const viewMap = { framework:FrameworkContent, concepts:ConceptsContent, components:ComponentsContent, databases:DatabasesContent, patterns:PatternsContent, networking:NetworkingContent, questions:QuestionsContent, tradeoffs:TradeoffsContent, numbers:NumbersContent, tips:TipsContent };
 
 export default function App() {
   const [active, setActive] = useState("framework");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+
+  // Get current theme colors - this overrides the module-level C within this component's scope
+  const C = themes[currentTheme];
+
+  // Define navItems inside component so it uses the dynamic C
+  const navItems = [
+    { id:"framework", icon:"⚡", label:"Framework", color:C.accent },
+    { id:"concepts", icon:"🧠", label:"Concepts", color:C.blue },
+    { id:"components", icon:"🧩", label:"Components", color:C.green },
+    { id:"databases", icon:"🗄️", label:"Databases", color:C.purple },
+    { id:"patterns", icon:"📐", label:"Patterns", color:C.red },
+    { id:"networking", icon:"🌐", label:"Networking", color:C.blue },
+    { id:"questions", icon:"🏗️", label:"Questions", color:C.pink },
+    { id:"tradeoffs", icon:"⚖️", label:"Trade-offs", color:C.teal },
+    { id:"numbers", icon:"🔢", label:"Numbers", color:C.orange },
+    { id:"tips", icon:"🎯", label:"Pro Tips", color:C.red },
+  ];
+
   const ActiveView = viewMap[active];
   const nav = navItems.find(n => n.id === active);
+
+  // Persist theme to localStorage
+  useEffect(() => {
+    localStorage.setItem('theme', currentTheme);
+  }, [currentTheme]);
 
   return (
     <div style={{ minHeight:"100vh", background:C.bg, fontFamily:"'DM Sans',system-ui,sans-serif", color:C.text }}>
@@ -2303,11 +2455,12 @@ export default function App() {
           <div style={{ color:C.text, fontWeight:900, fontSize:15, letterSpacing:"-0.3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>System Design Interview</div>
           <div className="desktop-only" style={{ color:C.muted, fontSize:11, fontFamily:"'JetBrains Mono',monospace" }}>Complete Reference Guide · 2024 Edition</div>
         </div>
-        <div className="top-bar-badges" style={{ marginLeft:"auto" }}>
+        <div className="top-bar-badges" style={{ marginLeft:"auto", display: 'flex', gap: 6, alignItems: 'center' }}>
           {["🟢 FAANG Level","⏱ 45–60 min","📚 9 Sections","🏗️ 20 Questions"].map((b, i) => (
             <span key={i} style={{ padding:"4px 10px", borderRadius:20, background:C.bg, border:`1px solid ${C.border}`, color:C.muted, fontSize:11, fontFamily:"'JetBrains Mono',monospace", whiteSpace: "nowrap" }}>{b}</span>
           ))}
         </div>
+        <ThemeSwitcher currentTheme={currentTheme} onChange={setCurrentTheme} />
       </div>
 
       <div style={{ display:"flex", minHeight:"calc(100vh - 61px)" }}>
