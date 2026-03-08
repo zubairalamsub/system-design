@@ -66,7 +66,8 @@ const ComponentBox = ({ icon, label, color, delay = 0 }) => (
       borderRadius: 12,
       padding: "12px 16px",
       textAlign: "center",
-      minWidth: 100
+      minWidth: 100,
+      maxWidth: "100%"
     }}
     initial={{ scale: 0, rotate: -10 }}
     animate={{ scale: 1, rotate: 0 }}
@@ -2159,8 +2160,10 @@ const viewMap = { framework:FrameworkContent, concepts:ConceptsContent, componen
 
 export default function App() {
   const [active, setActive] = useState("framework");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const ActiveView = viewMap[active];
   const nav = navItems.find(n => n.id === active);
+
   return (
     <div style={{ minHeight:"100vh", background:C.bg, fontFamily:"'DM Sans',system-ui,sans-serif", color:C.text }}>
       <style>{`
@@ -2170,27 +2173,148 @@ export default function App() {
         ::-webkit-scrollbar-track { background:${C.bg}; }
         ::-webkit-scrollbar-thumb { background:${C.border}; border-radius:3px; }
         button { font-family:inherit; }
+
+        /* Mobile responsive utilities */
+        .mobile-only { display: none; }
+        .desktop-only { display: flex; }
+        .top-bar-badges { display: flex; gap: 6px; }
+        .sidebar { width: 200px; }
+        .main-content { padding: 28px; }
+
+        /* Responsive grid overrides for mobile */
+        @media (max-width: 768px) {
+          .mobile-only { display: flex; }
+          .desktop-only { display: none; }
+          .top-bar-badges { display: none; }
+          .sidebar {
+            position: fixed;
+            left: ${mobileMenuOpen ? '0' : '-100%'};
+            top: 61px;
+            width: 260px;
+            height: calc(100vh - 61px);
+            z-index: 300;
+            transition: left 0.3s ease;
+            box-shadow: ${mobileMenuOpen ? '2px 0 8px rgba(0,0,0,0.1)' : 'none'};
+          }
+          .main-content { padding: 16px; }
+
+          /* Make all 2-column and 3-column grids stack on mobile */
+          [style*="gridTemplateColumns"]:not([style*="repeat"]) {
+            grid-template-columns: 1fr !important;
+          }
+
+          /* Responsive diagram adjustments */
+          [style*="display: flex"][style*="justifyContent: space-around"] {
+            flex-direction: column;
+            gap: 20px;
+          }
+
+          /* Reduce font sizes on mobile for better readability */
+          pre {
+            font-size: 11px !important;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          /* Better tag wrapping on mobile */
+          [style*="flexWrap: wrap"] {
+            gap: 4px !important;
+          }
+
+          /* Adjust arrow diagrams for mobile */
+          svg {
+            max-width: 100%;
+            height: auto;
+          }
+
+          /* Ensure buttons don't get too small */
+          button {
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .main-content { padding: 12px; }
+
+          /* Even smaller fonts for very small screens */
+          pre {
+            font-size: 10px !important;
+          }
+
+          /* Reduce padding in cards */
+          [style*="padding: 14px"] {
+            padding: 10px !important;
+          }
+
+          /* Scale down large text on very small screens */
+          [style*="fontSize: 28"] {
+            font-size: 24px !important;
+          }
+
+          [style*="fontSize: 32"] {
+            font-size: 26px !important;
+          }
+        }
       `}</style>
 
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 299,
+            top: 61
+          }}
+        />
+      )}
+
       {/* Top bar */}
-      <div style={{ background:C.surface, borderBottom:`1px solid ${C.border}`, padding:"14px 24px", display:"flex", alignItems:"center", gap:14, position:"sticky", top:0, zIndex:200 }}>
-        <div style={{ width:32, height:32, borderRadius:9, background:`${C.accent}20`, border:`1px solid ${C.accent}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>🏗️</div>
-        <div>
-          <div style={{ color:C.text, fontWeight:900, fontSize:15, letterSpacing:"-0.3px" }}>System Design Interview</div>
-          <div style={{ color:C.muted, fontSize:11, fontFamily:"'JetBrains Mono',monospace" }}>Complete Reference Guide · 2024 Edition</div>
+      <div style={{ background:C.surface, borderBottom:`1px solid ${C.border}`, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, position:"sticky", top:0, zIndex:200 }}>
+        {/* Mobile menu button */}
+        <button
+          className="mobile-only"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            border: `1px solid ${C.border}`,
+            background: C.bg,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            cursor: 'pointer',
+            padding: 0
+          }}
+        >
+          <span style={{ width: 18, height: 2, background: C.text, borderRadius: 1 }} />
+          <span style={{ width: 18, height: 2, background: C.text, borderRadius: 1 }} />
+          <span style={{ width: 18, height: 2, background: C.text, borderRadius: 1 }} />
+        </button>
+
+        <div style={{ width:32, height:32, borderRadius:9, background:`${C.accent}20`, border:`1px solid ${C.accent}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink: 0 }}>🏗️</div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ color:C.text, fontWeight:900, fontSize:15, letterSpacing:"-0.3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>System Design Interview</div>
+          <div className="desktop-only" style={{ color:C.muted, fontSize:11, fontFamily:"'JetBrains Mono',monospace" }}>Complete Reference Guide · 2024 Edition</div>
         </div>
-        <div style={{ marginLeft:"auto", display:"flex", gap:6 }}>
+        <div className="top-bar-badges" style={{ marginLeft:"auto" }}>
           {["🟢 FAANG Level","⏱ 45–60 min","📚 9 Sections","🏗️ 20 Questions"].map((b, i) => (
-            <span key={i} style={{ padding:"4px 10px", borderRadius:20, background:C.bg, border:`1px solid ${C.border}`, color:C.muted, fontSize:11, fontFamily:"'JetBrains Mono',monospace" }}>{b}</span>
+            <span key={i} style={{ padding:"4px 10px", borderRadius:20, background:C.bg, border:`1px solid ${C.border}`, color:C.muted, fontSize:11, fontFamily:"'JetBrains Mono',monospace", whiteSpace: "nowrap" }}>{b}</span>
           ))}
         </div>
       </div>
 
       <div style={{ display:"flex", minHeight:"calc(100vh - 61px)" }}>
         {/* Sidebar */}
-        <div style={{ width:200, borderRight:`1px solid ${C.border}`, padding:"16px 10px", background:C.surface, position:"sticky", top:61, height:"calc(100vh - 61px)", overflowY:"auto", flexShrink:0 }}>
+        <div className="sidebar" style={{ borderRight:`1px solid ${C.border}`, padding:"16px 10px", background:C.surface, position:"sticky", top:61, height:"calc(100vh - 61px)", overflowY:"auto", flexShrink:0 }}>
           {navItems.map(n => (
-            <button key={n.id} onClick={() => setActive(n.id)}
+            <button key={n.id} onClick={() => { setActive(n.id); setMobileMenuOpen(false); }}
               style={{ width:"100%", display:"flex", alignItems:"center", gap:9, padding:"9px 11px", borderRadius:8, border:"none", background:active===n.id?`${n.color}18`:"transparent", color:active===n.id?n.color:C.muted, cursor:"pointer", textAlign:"left", fontSize:12, fontWeight:active===n.id?800:500, marginBottom:2, transition:"all 0.15s" }}>
               <span style={{ fontSize:14, flexShrink:0 }}>{n.icon}</span>
               <span style={{ flex:1 }}>{n.label}</span>
@@ -2209,8 +2333,8 @@ export default function App() {
         </div>
 
         {/* Main */}
-        <div style={{ flex:1, padding:28, overflowY:"auto", minWidth:0 }}>
-          <div style={{ maxWidth:1100 }}>
+        <div className="main-content" style={{ flex:1, overflowY:"auto", minWidth:0 }}>
+          <div style={{ maxWidth:1100, margin: "0 auto" }}>
             <ActiveView />
           </div>
         </div>
