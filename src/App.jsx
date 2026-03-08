@@ -33,6 +33,144 @@ const SectionHeader = ({ label, color, title, subtitle }) => (
   </div>
 );
 
+// ───────── DIAGRAM COMPONENTS ─────────
+
+const FlowingArrow = ({ color = C.blue, delay = 0 }) => (
+  <motion.svg width="60" height="20" viewBox="0 0 60 20" style={{ overflow: "visible" }}>
+    <motion.path
+      d="M 0 10 L 50 10 L 45 5 M 50 10 L 45 15"
+      stroke={color}
+      strokeWidth="2"
+      fill="none"
+      initial={{ pathLength: 0, opacity: 0 }}
+      animate={{ pathLength: 1, opacity: 1 }}
+      transition={{ duration: 1, delay, repeat: Infinity, repeatDelay: 2 }}
+    />
+    <motion.circle
+      cx="0"
+      cy="10"
+      r="3"
+      fill={color}
+      initial={{ x: 0 }}
+      animate={{ x: 50 }}
+      transition={{ duration: 1.5, delay, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}
+    />
+  </motion.svg>
+);
+
+const ComponentBox = ({ icon, label, color, delay = 0 }) => (
+  <motion.div
+    style={{
+      background: `${color}15`,
+      border: `2px solid ${color}`,
+      borderRadius: 12,
+      padding: "12px 16px",
+      textAlign: "center",
+      minWidth: 100
+    }}
+    initial={{ scale: 0, rotate: -10 }}
+    animate={{ scale: 1, rotate: 0 }}
+    transition={{ delay, type: "spring", stiffness: 200, damping: 12 }}
+    whileHover={{ scale: 1.05, boxShadow: `0 8px 25px ${color}50` }}
+  >
+    <motion.div
+      style={{ fontSize: 28, marginBottom: 4 }}
+      animate={{ rotate: [0, 5, -5, 0] }}
+      transition={{ duration: 2, delay: delay + 0.5, repeat: Infinity, repeatDelay: 3 }}
+    >
+      {icon}
+    </motion.div>
+    <div style={{ color: C.text, fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono',monospace" }}>{label}</div>
+  </motion.div>
+);
+
+const MetricCard = ({ value, label, color, delay = 0, suffix = "" }) => (
+  <motion.div
+    style={{
+      background: C.surface2,
+      borderLeft: `4px solid ${color}`,
+      borderRadius: 8,
+      padding: "12px 14px"
+    }}
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay, duration: 0.5 }}
+    whileHover={{ scale: 1.03, borderLeftWidth: "6px" }}
+  >
+    <motion.div
+      style={{ color, fontSize: 24, fontWeight: 900, fontFamily: "'JetBrains Mono',monospace", marginBottom: 2 }}
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ delay: delay + 0.2, type: "spring", stiffness: 200 }}
+    >
+      {value}{suffix}
+    </motion.div>
+    <div style={{ color: C.muted, fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>{label}</div>
+  </motion.div>
+);
+
+const ArchitectureDiagram = ({ questionType = "url-shortener" }) => {
+  const diagrams = {
+    "url-shortener": (
+      <div style={{ background: C.bg, borderRadius: 12, padding: 20, marginTop: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <ComponentBox icon="👤" label="Client" color={C.blue} delay={0} />
+          <FlowingArrow color={C.blue} delay={0.3} />
+          <ComponentBox icon="🌐" label="DNS/CDN" color={C.green} delay={0.15} />
+          <FlowingArrow color={C.green} delay={0.6} />
+          <ComponentBox icon="⚖️" label="Load Balancer" color={C.accent} delay={0.3} />
+          <FlowingArrow color={C.accent} delay={0.9} />
+          <ComponentBox icon="🚀" label="API Server" color={C.purple} delay={0.45} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
+          <ComponentBox icon="🗄️" label="PostgreSQL" color={C.red} delay={0.6} />
+          <ComponentBox icon="⚡" label="Redis Cache" color={C.orange} delay={0.75} />
+          <ComponentBox icon="📊" label="Analytics" color={C.teal} delay={0.9} />
+        </div>
+        <motion.div
+          style={{ marginTop: 16, padding: "8px 12px", background: `${C.accent}15`, borderRadius: 8, textAlign: "center" }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+        >
+          <span style={{ color: C.accent, fontSize: 11, fontWeight: 800 }}>⚡ Data Flow: </span>
+          <span style={{ color: C.text, fontSize: 11 }}>Write → API → Cache + DB | Read → Cache (if exists) → DB (if miss)</span>
+        </motion.div>
+      </div>
+    ),
+    "twitter": (
+      <div style={{ background: C.bg, borderRadius: 12, padding: 20, marginTop: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <ComponentBox icon="📱" label="Mobile/Web" color={C.blue} delay={0} />
+          <FlowingArrow color={C.blue} delay={0.3} />
+          <ComponentBox icon="🚪" label="API Gateway" color={C.green} delay={0.15} />
+          <FlowingArrow color={C.green} delay={0.6} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <ComponentBox icon="✍️" label="Tweet Service" color={C.purple} delay={0.3} />
+            <ComponentBox icon="📰" label="Timeline Service" color={C.pink} delay={0.45} />
+            <ComponentBox icon="👥" label="User Service" color={C.teal} delay={0.6} />
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
+          <ComponentBox icon="🗄️" label="Cassandra" color={C.red} delay={0.75} />
+          <ComponentBox icon="⚡" label="Redis" color={C.orange} delay={0.9} />
+          <ComponentBox icon="📨" label="Kafka" color={C.accent} delay={1.05} />
+          <ComponentBox icon="📦" label="S3 Media" color={C.blue} delay={1.2} />
+        </div>
+      </div>
+    )
+  };
+  return diagrams[questionType] || diagrams["url-shortener"];
+};
+
+const MetricsPanel = ({ metrics }) => (
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginTop: 16 }}>
+    {metrics.map((m, i) => (
+      <MetricCard key={i} value={m.value} label={m.label} color={m.color} delay={i * 0.1} suffix={m.suffix} />
+    ))}
+  </div>
+);
+
 // ───────── FRAMEWORK ─────────
 const frameworkSteps = [
   { step:"01", color:C.accent, title:"Clarify Requirements (5–8 min)",
@@ -615,6 +753,13 @@ function PatternsContent() {
 const questions = [
   { name:"URL Shortener", icon:"🔗", difficulty:"Medium", color:C.green, tags:["Hashing","KV Store","CDN"],
     scale:"1B URLs stored, 100:1 read:write, 10K QPS reads, 100 QPS writes",
+    diagram:"url-shortener",
+    metrics:[
+      { value:"1B", label:"URLs Stored", color:C.green },
+      { value:"10K", label:"Read QPS", color:C.blue },
+      { value:"100", label:"Write QPS", color:C.purple },
+      { value:"100:1", label:"Read/Write Ratio", color:C.accent }
+    ],
     requirements:["Shorten long URL → short code (6–8 chars)","Redirect short URL to original (HTTP 301/302)","Custom aliases, URL expiry, analytics (optional)"],
     architecture:[
       "Base62 encode auto-increment ID (a-z, A-Z, 0-9) → 6 chars covers 56B URLs",
@@ -629,6 +774,15 @@ const questions = [
 
   { name:"Twitter / Social Feed", icon:"🐦", difficulty:"Hard", color:C.blue, tags:["Fan-out","Timeline","Sharding"],
     scale:"500M users, 300M DAU, 500M tweets/day, 28K QPS reads, 6K QPS writes",
+    diagram:"twitter",
+    metrics:[
+      { value:"500M", label:"Total Users", color:C.blue },
+      { value:"300M", label:"Daily Active", color:C.green },
+      { value:"28K", label:"Read QPS", color:C.purple },
+      { value:"6K", label:"Write QPS", color:C.red },
+      { value:"500M", label:"Tweets/Day", color:C.accent },
+      { value:"4.7:1", label:"Read/Write Ratio", color:C.teal }
+    ],
     requirements:["Post tweets (text, images, video)","Home timeline (follow graph aggregated feed)","Search tweets, trending hashtags","Like, retweet, reply, DMs"],
     architecture:[
       "Fan-out on write (push): on tweet, write to all follower timelines in Redis sorted sets. Fast reads.",
@@ -1029,8 +1183,35 @@ function QuestionsContent() {
                     >
                       📊 {q.scale}
                     </motion.div>
+
+                    {q.diagram && (
+                      <motion.div
+                        variants={{
+                          hidden: { opacity: 0, scale: 0.9 },
+                          visible: { opacity: 1, scale: 1 }
+                        }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                      >
+                        <div style={{ color:q.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>🏗️ ARCHITECTURE DIAGRAM</div>
+                        <ArchitectureDiagram questionType={q.diagram} />
+                      </motion.div>
+                    )}
+
+                    {q.metrics && (
+                      <motion.div
+                        variants={{
+                          hidden: { opacity: 0, y: 20 },
+                          visible: { opacity: 1, y: 0 }
+                        }}
+                        transition={{ duration: 0.4, delay: 0.4 }}
+                      >
+                        <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginTop:16, marginBottom:8 }}>📈 KEY METRICS</div>
+                        <MetricsPanel metrics={q.metrics} />
+                      </motion.div>
+                    )}
+
                     <motion.div
-                      style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}
+                      style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12, marginTop:16 }}
                       variants={{
                         hidden: { opacity: 0, y: 20 },
                         visible: { opacity: 1, y: 0 }
