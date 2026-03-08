@@ -928,18 +928,75 @@ function QuestionsContent() {
         ))}
         <span style={{ marginLeft:"auto", color:C.muted, fontSize:12, alignSelf:"center" }}>{filtered.length} questions</span>
       </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+      <motion.div
+        style={{ display:"flex", flexDirection:"column", gap:8 }}
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.05
+            }
+          }
+        }}
+      >
         {filtered.map((q, i) => (
-          <div key={i} onClick={() => setSel(sel===q.name?null:q.name)}
-            style={{ background:sel===q.name?`${q.color}0a`:C.surface, border:`1px solid ${sel===q.name?q.color+"33":C.border}`, borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"all 0.2s" }}>
+          <motion.div
+            key={i}
+            onClick={() => setSel(sel===q.name?null:q.name)}
+            style={{ background:sel===q.name?`${q.color}0a`:C.surface, border:`1px solid ${sel===q.name?q.color+"33":C.border}`, borderRadius:12, overflow:"hidden", cursor:"pointer" }}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: `0 8px 30px ${q.color}40`,
+              transition: { duration: 0.2 }
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
             <div style={{ padding:"14px 18px", display:"flex", alignItems:"center", gap:12 }}>
-              <span style={{ fontSize:20 }}>{q.icon}</span>
+              <motion.span
+                style={{ fontSize:20 }}
+                whileHover={{ scale: 1.2, rotate: 10 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                {q.icon}
+              </motion.span>
               <span style={{ flex:1, color:C.text, fontWeight:700, fontSize:14 }}>{q.name}</span>
               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-                {q.tags.slice(0,2).map((t,j) => <Tag key={j} t={t} c={q.color} />)}
-                <Tag t={q.difficulty} c={diffColor[q.difficulty]||C.muted} />
+                {q.tags.slice(0,2).map((t,j) => (
+                  <motion.div
+                    key={j}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.1 + j * 0.05, type: "spring", stiffness: 200 }}
+                  >
+                    <Tag t={t} c={q.color} />
+                  </motion.div>
+                ))}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  whileHover={{
+                    scale: 1.15,
+                    rotate: [0, -5, 5, -5, 0],
+                    transition: { duration: 0.5 }
+                  }}
+                >
+                  <Tag t={q.difficulty} c={diffColor[q.difficulty]||C.muted} />
+                </motion.div>
               </div>
-              <span style={{ color:C.muted, marginLeft:8 }}>{sel===q.name?"▴":"▾"}</span>
+              <motion.span
+                style={{ color:C.muted, marginLeft:8 }}
+                animate={{ rotate: sel===q.name ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {sel===q.name?"▴":"▾"}
+              </motion.span>
             </div>
             <AnimatePresence initial={false}>
               {sel===q.name && (
@@ -947,56 +1004,131 @@ function QuestionsContent() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   style={{ overflow: "hidden" }}
                 >
-                  <div style={{ padding:"0 18px 18px" }}>
-                    <div style={{ background:`${q.color}0a`, borderRadius:10, padding:"10px 14px", marginBottom:12, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:q.color }}>
+                  <motion.div
+                    style={{ padding:"0 18px 18px" }}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      visible: {
+                        transition: {
+                          staggerChildren: 0.08
+                        }
+                      }
+                    }}
+                  >
+                    <motion.div
+                      style={{ background:`${q.color}0a`, borderRadius:10, padding:"10px 14px", marginBottom:12, fontFamily:"'JetBrains Mono',monospace", fontSize:12, color:q.color }}
+                      variants={{
+                        hidden: { opacity: 0, x: -20 },
+                        visible: { opacity: 1, x: 0 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                    >
                       📊 {q.scale}
-                    </div>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
-                      <div style={{ background:C.bg, borderRadius:10, padding:12 }}>
+                    </motion.div>
+                    <motion.div
+                      style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <motion.div
+                        style={{ background:C.bg, borderRadius:10, padding:12 }}
+                        whileHover={{ scale: 1.02, boxShadow: `0 4px 20px ${C.blue}30` }}
+                        transition={{ duration: 0.2 }}
+                      >
                         <div style={{ color:C.blue, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>REQUIREMENTS</div>
                         {q.requirements.map((r, j) => (
-                          <div key={j} style={{ display:"flex", gap:6, marginBottom:4 }}>
+                          <motion.div
+                            key={j}
+                            style={{ display:"flex", gap:6, marginBottom:4 }}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 + j * 0.03 }}
+                          >
                             <span style={{ color:C.blue }}>•</span>
                             <span style={{ color:C.muted, fontSize:12 }}>{r}</span>
-                          </div>
+                          </motion.div>
                         ))}
-                      </div>
-                      <div style={{ background:C.bg, borderRadius:10, padding:12 }}>
+                      </motion.div>
+                      <motion.div
+                        style={{ background:C.bg, borderRadius:10, padding:12 }}
+                        whileHover={{ scale: 1.02, boxShadow: `0 4px 20px ${C.red}30` }}
+                        transition={{ duration: 0.2 }}
+                      >
                         <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>BOTTLENECKS</div>
                         {q.bottlenecks.map((b, j) => (
-                          <div key={j} style={{ display:"flex", gap:6, marginBottom:4 }}>
+                          <motion.div
+                            key={j}
+                            style={{ display:"flex", gap:6, marginBottom:4 }}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 + j * 0.03 }}
+                          >
                             <span style={{ color:C.red }}>⚡</span>
                             <span style={{ color:C.muted, fontSize:12 }}>{b}</span>
-                          </div>
+                          </motion.div>
                         ))}
-                      </div>
-                    </div>
-                    <div style={{ background:C.surface2, borderRadius:10, padding:12, marginBottom:12 }}>
+                      </motion.div>
+                    </motion.div>
+                    <motion.div
+                      style={{ background:C.surface2, borderRadius:10, padding:12, marginBottom:12 }}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ scale: 1.01, boxShadow: `0 4px 20px ${q.color}30` }}
+                    >
                       <div style={{ color:q.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>ARCHITECTURE APPROACH</div>
                       {q.architecture.map((a, j) => (
-                        <div key={j} style={{ display:"flex", gap:8, marginBottom:5 }}>
+                        <motion.div
+                          key={j}
+                          style={{ display:"flex", gap:8, marginBottom:5 }}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.15 + j * 0.05 }}
+                        >
                           <span style={{ color:q.color, flexShrink:0, fontWeight:700 }}>{j+1}.</span>
                           <span style={{ color:C.text, fontSize:13, lineHeight:1.5 }}>{a}</span>
-                        </div>
+                        </motion.div>
                       ))}
-                    </div>
-                    <div style={{ background:C.bg, borderRadius:8, padding:"10px 14px", marginBottom:10, fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.green }}>
+                    </motion.div>
+                    <motion.div
+                      style={{ background:C.bg, borderRadius:8, padding:"10px 14px", marginBottom:10, fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:C.green }}
+                      variants={{
+                        hidden: { opacity: 0, x: -20 },
+                        visible: { opacity: 1, x: 0 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
                       <span style={{ color:C.muted, fontWeight:800 }}>SCHEMA: </span>{q.schema}
-                    </div>
-                    <div style={{ background:`${C.accent}15`, border:`1px solid ${C.accent}33`, borderRadius:8, padding:"10px 14px" }}>
+                    </motion.div>
+                    <motion.div
+                      style={{ background:`${C.accent}15`, border:`1px solid ${C.accent}33`, borderRadius:8, padding:"10px 14px" }}
+                      variants={{
+                        hidden: { opacity: 0, scale: 0.95 },
+                        visible: { opacity: 1, scale: 1 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{ scale: 1.02, boxShadow: `0 4px 20px ${C.accent}40` }}
+                    >
                       <span style={{ color:C.accent, fontSize:11, fontWeight:800 }}>🎯 TRICKY PART  </span>
                       <span style={{ color:C.text, fontSize:13 }}>{q.tricky}</span>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
