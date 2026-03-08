@@ -1603,6 +1603,319 @@ function TipsContent() {
   );
 }
 
+// ───────── NETWORKING ─────────
+
+const NetworkFlowDiagram = ({ type }) => {
+  const flows = {
+    "tcp-handshake": (
+      <div style={{ background: C.bg, borderRadius: 12, padding: 20, marginTop: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-around", alignItems: "flex-start" }}>
+          <ComponentBox icon="💻" label="Client" color={C.blue} delay={0} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 30, marginTop: 40 }}>
+            <motion.div
+              style={{ display: "flex", alignItems: "center", gap: 10 }}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              <FlowingArrow color={C.green} delay={0.8} />
+              <span style={{ color: C.green, fontSize: 12, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>SYN</span>
+            </motion.div>
+            <motion.div
+              style={{ display: "flex", alignItems: "center", gap: 10, flexDirection: "row-reverse" }}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }}
+            >
+              <div style={{ transform: "scaleX(-1)" }}><FlowingArrow color={C.purple} delay={1.5} /></div>
+              <span style={{ color: C.purple, fontSize: 12, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>SYN-ACK</span>
+            </motion.div>
+            <motion.div
+              style={{ display: "flex", alignItems: "center", gap: 10 }}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.9, duration: 0.6 }}
+            >
+              <FlowingArrow color={C.accent} delay={2.2} />
+              <span style={{ color: C.accent, fontSize: 12, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>ACK</span>
+            </motion.div>
+          </div>
+          <ComponentBox icon="🖥️" label="Server" color={C.red} delay={0.3} />
+        </div>
+        <motion.div
+          style={{ marginTop: 20, padding: "8px 12px", background: `${C.green}15`, borderRadius: 8, textAlign: "center" }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 2.5 }}
+        >
+          <span style={{ color: C.green, fontSize: 11, fontWeight: 800 }}>✅ Connection Established: </span>
+          <span style={{ color: C.text, fontSize: 11 }}>3-Way Handshake Complete</span>
+        </motion.div>
+      </div>
+    ),
+    "http-request": (
+      <div style={{ background: C.bg, borderRadius: 12, padding: 20, marginTop: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          <ComponentBox icon="🌐" label="Browser" color={C.blue} delay={0} />
+          <FlowingArrow color={C.blue} delay={0.3} />
+          <ComponentBox icon="🔐" label="DNS" color={C.green} delay={0.15} />
+          <FlowingArrow color={C.green} delay={0.6} />
+          <ComponentBox icon="⚡" label="TCP Handshake" color={C.purple} delay={0.3} />
+          <FlowingArrow color={C.purple} delay={0.9} />
+          <ComponentBox icon="🌐" label="HTTP Request" color={C.accent} delay={0.45} />
+          <FlowingArrow color={C.accent} delay={1.2} />
+          <ComponentBox icon="🖥️" label="Server" color={C.red} delay={0.6} />
+        </div>
+      </div>
+    ),
+    "osi-layers": (
+      <div style={{ background: C.bg, borderRadius: 12, padding: 20, marginTop: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
+          {[
+            { num: 7, name: "Application", desc: "HTTP, DNS, SMTP", color: C.blue },
+            { num: 6, name: "Presentation", desc: "SSL/TLS, Encryption", color: C.green },
+            { num: 5, name: "Session", desc: "Session Management", color: C.purple },
+            { num: 4, name: "Transport", desc: "TCP, UDP", color: C.accent },
+            { num: 3, name: "Network", desc: "IP, Routing", color: C.pink },
+            { num: 2, name: "Data Link", desc: "MAC, Switches", color: C.teal },
+            { num: 1, name: "Physical", desc: "Cables, Signals", color: C.red }
+          ].map((layer, i) => (
+            <motion.div
+              key={i}
+              style={{
+                background: `${layer.color}15`,
+                border: `2px solid ${layer.color}`,
+                borderRadius: 8,
+                padding: "12px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 12
+              }}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+              whileHover={{ scale: 1.02, x: 10 }}
+            >
+              <span style={{ color: layer.color, fontSize: 20, fontWeight: 900, fontFamily: "'JetBrains Mono',monospace", minWidth: 30 }}>L{layer.num}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>{layer.name}</div>
+                <div style={{ color: C.muted, fontSize: 11 }}>{layer.desc}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    )
+  };
+  return flows[type] || null;
+};
+
+const networkingTopics = [
+  { level: "Basic", color: C.blue, topics: [
+    { name: "OSI Model & TCP/IP Stack",
+      flow: "osi-layers",
+      desc: "7-layer model: Application (HTTP/DNS) → Presentation (TLS) → Session → Transport (TCP/UDP) → Network (IP) → Data Link (MAC) → Physical",
+      why: "Foundation for understanding how data travels through networks. Each layer has specific responsibility.",
+      protocols: ["HTTP", "HTTPS", "DNS", "TCP", "UDP", "IP", "Ethernet"],
+      useCase: "Every network communication uses this stack — from browser to server" },
+    { name: "TCP vs UDP",
+      flow: "tcp-handshake",
+      desc: "TCP: connection-oriented, reliable, ordered delivery with 3-way handshake. UDP: connectionless, fast, no guarantees.",
+      why: "Choose TCP for reliability (HTTP, file transfer), UDP for speed (video streaming, gaming, DNS)",
+      protocols: ["TCP 3-way handshake (SYN, SYN-ACK, ACK)", "UDP datagram"],
+      useCase: "TCP: web pages, APIs. UDP: live video, VoIP, online games, DNS lookups" },
+    { name: "HTTP/HTTPS Request Flow",
+      flow: "http-request",
+      desc: "Browser → DNS lookup → TCP handshake → TLS handshake (HTTPS) → HTTP request → Server response → Connection close",
+      why: "Understanding HTTP lifecycle helps debug latency, optimize loading, implement caching",
+      protocols: ["HTTP/1.1", "HTTP/2 (multiplexing)", "HTTP/3 (QUIC)", "TLS 1.2/1.3"],
+      useCase: "Every web request: GET /api/users → 200 OK. HTTPS adds TLS encryption (443 port)" },
+    { name: "DNS Resolution",
+      desc: "Recursive query: Browser cache → OS cache → Router cache → ISP DNS → Root server → TLD server → Authoritative DNS",
+      why: "DNS is critical path. Slow DNS = slow site. Use DNS prefetch, minimize lookups, CDN for geo-distributed DNS",
+      protocols: ["DNS (UDP port 53)", "DoH (DNS over HTTPS)", "DoT (DNS over TLS)"],
+      useCase: "google.com → 142.250.80.46. Typical lookup: 20-120ms. Cached: <1ms" },
+  ]},
+  { level: "Intermediate", color: C.green, topics: [
+    { name: "Load Balancing Algorithms",
+      desc: "L4 (TCP): Round Robin, Least Connections, IP Hash. L7 (HTTP): URL-based, Header-based, Weighted Round Robin, Least Response Time",
+      why: "Different algorithms fit different traffic patterns. Sticky sessions need IP Hash. Health checks prevent routing to dead nodes",
+      protocols: ["L4 (Transport)", "L7 (Application)", "Health check protocols"],
+      useCase: "AWS ALB (L7): route /api → API servers, /static → CDN. NLB (L4): ultra-low latency" },
+    { name: "WebSocket & Long Polling",
+      desc: "HTTP: req-res, stateless. Long Polling: client polls with timeout. WebSocket: persistent bidirectional TCP connection (upgrade from HTTP)",
+      why: "Real-time apps need WebSocket (chat, gaming, live feeds). Fallback: Server-Sent Events (SSE) for unidirectional",
+      protocols: ["WebSocket (ws:// wss://)", "HTTP Long Polling", "SSE"],
+      useCase: "Chat apps (WhatsApp), live sports scores, collaborative editing (Google Docs)" },
+    { name: "CDN & Edge Caching",
+      desc: "Edge locations cache static assets close to users. Origin pull: CDN fetches from origin on cache miss. TTL controls freshness",
+      why: "Reduce latency (serve from nearest edge), offload origin traffic, DDoS protection",
+      protocols: ["HTTP caching headers (Cache-Control, ETag)", "Anycast routing"],
+      useCase: "Cloudflare, Akamai: cache images, JS, CSS. 90% cache hit rate → 10x less origin load" },
+    { name: "SSL/TLS Handshake",
+      desc: "Client Hello → Server Hello (certificate) → Client verifies cert → Key exchange (RSA/ECDHE) → Session keys → Encrypted data",
+      why: "HTTPS is mandatory. TLS 1.3 reduces handshake to 1-RTT (vs 2-RTT in TLS 1.2). Use session resumption for faster reconnects",
+      protocols: ["TLS 1.2", "TLS 1.3", "Certificate chains", "ALPN for HTTP/2"],
+      useCase: "Every HTTPS request. ~100-300ms handshake cost. Optimize: OCSP stapling, session tickets" },
+  ]},
+  { level: "Advanced", color: C.purple, topics: [
+    { name: "HTTP/2 Multiplexing & Server Push",
+      desc: "Single TCP connection, multiple parallel streams, header compression (HPACK), server can push resources before requested",
+      why: "Eliminates head-of-line blocking (HTTP/1.1), reduces latency, better use of bandwidth. But TCP-level HOL blocking remains",
+      protocols: ["HTTP/2 (binary framing)", "HPACK compression", "Stream prioritization"],
+      useCase: "Modern browsers + servers. Push critical CSS/JS. Multiplexing: 100 requests on 1 connection" },
+    { name: "QUIC & HTTP/3",
+      desc: "QUIC: UDP-based, built-in TLS, multiple streams without TCP HOL blocking. HTTP/3 runs on QUIC. 0-RTT connection resumption",
+      why: "Solves TCP's head-of-line blocking. Faster connection setup. Mobile-friendly (connection migration on IP change)",
+      protocols: ["QUIC (UDP)", "HTTP/3", "0-RTT handshake"],
+      useCase: "Google, Cloudflare, Facebook use HTTP/3. 30%+ faster page loads on lossy networks" },
+    { name: "Anycast & GeoDNS",
+      desc: "Anycast: same IP announced from multiple locations, routed to nearest. GeoDNS: return different IPs based on user location",
+      why: "Global low latency, automatic failover, DDoS mitigation (distribute attack across edges)",
+      protocols: ["BGP Anycast", "DNS GeoDNS", "Active-active multi-region"],
+      useCase: "Cloudflare: 1.1.1.1 anycast to 200+ cities. AWS Route 53: geolocation routing" },
+    { name: "TCP Congestion Control & BBR",
+      desc: "Congestion control: slow start → congestion avoidance → fast retransmit. BBR (Bottleneck Bandwidth and RTT): model-based, not loss-based",
+      why: "Legacy: TCP Reno/Cubic react to packet loss (too late). BBR: proactively finds optimal rate. 2-4x throughput on lossy links",
+      protocols: ["TCP Reno", "TCP Cubic", "BBR v1/v2"],
+      useCase: "Google uses BBR for YouTube. Critical for high-latency/lossy networks (satellite, mobile)" },
+    { name: "BGP & Internet Routing",
+      desc: "BGP: Border Gateway Protocol routes traffic between autonomous systems (AS). Path selection: shortest AS path, local pref, MED",
+      why: "Critical for multi-region deployments, traffic engineering, DDoS mitigation. BGP hijacks can blackhole traffic",
+      protocols: ["BGP-4", "AS numbers", "Route announcements"],
+      useCase: "AWS announces prefixes via BGP. Cloudflare uses BGP anycast. Incidents: YouTube BGP hijack 2008" },
+  ]},
+];
+
+function NetworkingContent() {
+  const [sel, setSel] = useState(null);
+  const [levelFilter, setLevelFilter] = useState("All");
+  const levels = ["All", "Basic", "Intermediate", "Advanced"];
+  const filtered = levelFilter === "All" ? networkingTopics : networkingTopics.filter(g => g.level === levelFilter);
+
+  return (
+    <div>
+      <SectionHeader
+        label="Networking Fundamentals"
+        color={C.blue}
+        title="Basic to Advanced Networking"
+        subtitle="Complete networking guide: OSI layers, protocols, HTTP evolution, load balancing, CDN, and modern networking (HTTP/2, QUIC, BBR)"
+      />
+
+      <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:16 }}>
+        {levels.map(l => (
+          <button key={l} onClick={() => setLevelFilter(l)}
+            style={{ padding:"6px 14px", borderRadius:8, border:`1px solid ${levelFilter===l?C.blue:C.border}`, background:levelFilter===l?`${C.blue}18`:"transparent", color:levelFilter===l?C.blue:C.muted, cursor:"pointer", fontSize:12, fontWeight:600 }}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {filtered.map((group, gi) => (
+        <div key={gi} style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <div style={{ padding: "4px 12px", background: `${group.color}20`, border: `1px solid ${group.color}`, borderRadius: 20, color: group.color, fontSize: 12, fontWeight: 800 }}>
+              {group.level}
+            </div>
+            <div style={{ height: 1, flex: 1, background: `${group.color}30` }} />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {group.topics.map((topic, ti) => {
+              const key = `${gi}-${ti}`;
+              const isOpen = sel === key;
+              return (
+                <motion.div
+                  key={ti}
+                  onClick={() => setSel(isOpen ? null : key)}
+                  style={{
+                    background: isOpen ? `${group.color}0a` : C.surface,
+                    border: `1px solid ${isOpen ? group.color+"44" : C.border}`,
+                    borderRadius: 12,
+                    cursor: "pointer",
+                    overflow: "hidden"
+                  }}
+                  whileHover={{ scale: 1.01, borderColor: `${group.color}88` }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
+                    <motion.span
+                      style={{ fontSize: 20 }}
+                      animate={{ rotate: isOpen ? 360 : 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      🌐
+                    </motion.span>
+                    <span style={{ flex: 1, color: C.text, fontWeight: 700, fontSize: 14 }}>{topic.name}</span>
+                    {topic.protocols && (
+                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                        {topic.protocols.slice(0, 2).map((p, pi) => (
+                          <Tag key={pi} t={p} c={group.color} />
+                        ))}
+                      </div>
+                    )}
+                    <motion.span
+                      style={{ color: C.muted }}
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      ▾
+                    </motion.span>
+                  </div>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                        style={{ overflow: "hidden" }}
+                      >
+                        <div style={{ padding: "0 18px 18px" }}>
+                          {topic.flow && <NetworkFlowDiagram type={topic.flow} />}
+
+                          <div style={{ background: C.bg, borderRadius: 10, padding: 14, marginTop: 12 }}>
+                            <div style={{ color: group.color, fontSize: 11, fontWeight: 800, fontFamily: "monospace", marginBottom: 8 }}>📖 DESCRIPTION</div>
+                            <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, margin: 0 }}>{topic.desc}</p>
+                          </div>
+
+                          <div style={{ background: `${C.accent}15`, border: `1px solid ${C.accent}33`, borderRadius: 8, padding: "10px 14px", marginTop: 12 }}>
+                            <span style={{ color: C.accent, fontSize: 11, fontWeight: 800 }}>💡 WHY IT MATTERS  </span>
+                            <span style={{ color: C.text, fontSize: 13 }}>{topic.why}</span>
+                          </div>
+
+                          {topic.protocols && (
+                            <div style={{ marginTop: 12 }}>
+                              <div style={{ color: group.color, fontSize: 11, fontWeight: 800, fontFamily: "monospace", marginBottom: 6 }}>🔧 PROTOCOLS & TECH</div>
+                              <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                                {topic.protocols.map((p, pi) => (
+                                  <Tag key={pi} t={p} c={group.color} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {topic.useCase && (
+                            <div style={{ background: `${C.green}15`, borderRadius: 8, padding: "10px 14px", marginTop: 12 }}>
+                              <span style={{ color: C.green, fontSize: 11, fontWeight: 800 }}>✅ REAL-WORLD USE  </span>
+                              <span style={{ color: C.text, fontSize: 13 }}>{topic.useCase}</span>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ───────── MAIN APP ─────────
 const navItems = [
   { id:"framework", icon:"⚡", label:"Framework", color:C.accent },
@@ -1610,13 +1923,14 @@ const navItems = [
   { id:"components", icon:"🧩", label:"Components", color:C.green },
   { id:"databases", icon:"🗄️", label:"Databases", color:C.purple },
   { id:"patterns", icon:"📐", label:"Patterns", color:C.red },
+  { id:"networking", icon:"🌐", label:"Networking", color:C.blue },
   { id:"questions", icon:"🏗️", label:"Questions", color:C.pink },
   { id:"tradeoffs", icon:"⚖️", label:"Trade-offs", color:C.teal },
   { id:"numbers", icon:"🔢", label:"Numbers", color:C.orange },
   { id:"tips", icon:"🎯", label:"Pro Tips", color:C.red },
 ];
 
-const viewMap = { framework:FrameworkContent, concepts:ConceptsContent, components:ComponentsContent, databases:DatabasesContent, patterns:PatternsContent, questions:QuestionsContent, tradeoffs:TradeoffsContent, numbers:NumbersContent, tips:TipsContent };
+const viewMap = { framework:FrameworkContent, concepts:ConceptsContent, components:ComponentsContent, databases:DatabasesContent, patterns:PatternsContent, networking:NetworkingContent, questions:QuestionsContent, tradeoffs:TradeoffsContent, numbers:NumbersContent, tips:TipsContent };
 
 export default function App() {
   const [active, setActive] = useState("framework");
