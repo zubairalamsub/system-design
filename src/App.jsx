@@ -269,11 +269,36 @@ function FrameworkContent() {
 // ───────── CONCEPTS ─────────
 const conceptGroups = [
   { name:"Scalability", color:C.accent, icon:"📈", items:[
-    { term:"Horizontal Scaling (Scale-Out)", def:"Add more machines. Requires stateless services. Session in Redis. Preferred for web services — near-linear cost scaling.", why:"No ceiling, commodity hardware, fault tolerant" },
-    { term:"Vertical Scaling (Scale-Up)", def:"Add more CPU/RAM to existing machine. Simple — no code change. Hard ceiling (largest EC2 = ~192 vCPU).", why:"Simple, no distribution overhead, good for stateful services short-term" },
-    { term:"Load Balancing Algorithms", def:"Round Robin (even dist), Least Connections (adaptive), IP Hash (sticky sessions), Weighted (heterogeneous fleet), Random with 2-choice.", why:"Algorithm choice affects latency distribution and hot spots" },
-    { term:"Stateless Services", def:"All state lives externally (Redis, DB). Any instance handles any request. Enables seamless horizontal scaling and zero-downtime deploys.", why:"Enables auto-scaling, blue-green deploys, canary releases" },
-    { term:"Database Connection Pooling", def:"PgBouncer (Postgres), HikariCP (Java), SqlConnection pool (.NET). Reuse connections — each DB connection costs 5–10MB RAM.", why:"10K app instances × 10 connections = 100K connections crash the DB" },
+    { term:"Horizontal Scaling (Scale-Out)",
+      def:"Add more machines to distribute load. Each server handles a portion of traffic. Requires stateless architecture where servers share no local state. Session data must live in external store like Redis or DynamoDB.",
+      why:"Preferred for web services because you can scale indefinitely by adding commodity hardware. Cost scales nearly linearly with traffic. Single-server limits: CPU, memory, network bandwidth.",
+      examples:"• Netflix: thousands of EC2 instances behind ELB\n• Spotify: stateless API servers, session in Redis\n• Uber: sharded microservices, horizontal scaling per service\n• Pattern: App servers (stateless) → Redis (session) → DB (data)",
+      tradeoffs:"✅ No ceiling, fault tolerant, commodity hardware\n❌ Complexity: distributed systems, eventual consistency\n❌ Data partitioning challenges\n❌ Debugging harder (distributed tracing needed)",
+      numbers:"1 server @ 1K QPS → 100 servers @ 100K QPS (linear scaling)\nTypical: 1 m5.large = 1K-5K QPS for simple API" },
+    { term:"Vertical Scaling (Scale-Up)",
+      def:"Add more CPU/RAM/SSD to existing machine. Move from t3.medium (2 vCPU, 4GB) to m5.24xlarge (96 vCPU, 384GB). No code changes required. Single-node performance optimization.",
+      why:"Simple — no distributed systems complexity. Good for stateful services (databases, caches) where distribution is hard. Interim solution before sharding.",
+      examples:"• PostgreSQL: upgrade from db.m5.large to db.m5.24xlarge\n• Redis: r6g.16xlarge (512GB RAM, 52M ops/sec)\n• MongoDB: vertical scaling before sharding\n• Use case: DB CPU at 80% → upgrade to next tier",
+      tradeoffs:"✅ Simple — no code change\n✅ No distribution overhead\n✅ Good for DBs short-term\n❌ Hard ceiling (AWS max: ~768 vCPU, 24TB RAM)\n❌ Expensive — cost grows exponentially\n❌ Downtime during resize\n❌ Single point of failure",
+      numbers:"t3.medium: $30/mo → m5.24xlarge: $4000/mo (non-linear cost)\nHard limit: 10-100K QPS per single server" },
+    { term:"Load Balancing Algorithms",
+      def:"Strategy for distributing requests across backend servers. L4 (TCP/IP) vs L7 (HTTP) load balancing. Health checks remove unhealthy nodes. Algorithms: Round Robin, Least Connections, IP Hash (sticky), Weighted (heterogeneous fleet), Least Response Time.",
+      why:"Algorithm choice dramatically affects tail latency and resource utilization. Poor choice causes hot spots (overloaded servers) or sticky session issues.",
+      examples:"• Round Robin: Request 1 → Server A, Request 2 → Server B (simple, even)\n• Least Connections: Route to server with fewest active connections (adaptive)\n• IP Hash: Hash client IP → consistent server (sticky sessions for stateful apps)\n• Weighted: 70% traffic to new fleet, 30% to old (canary deploys)\n• AWS ALB: path-based (/api → API servers, /static → CDN)",
+      tradeoffs:"Round Robin: ✅ Simple ❌ Ignores server load\nLeast Connections: ✅ Adapts to load ❌ Requires shared state\nIP Hash: ✅ Sticky sessions ❌ Uneven if IPs skewed\nWeighted: ✅ Canary deploys ❌ Manual weight tuning",
+      numbers:"AWS ALB: $0.0225/hr + $0.008/LCU (~$16/mo + traffic)\nProcesses 1M requests/sec across 1000 targets\nHealth check interval: 5-30 seconds" },
+    { term:"Stateless Services",
+      def:"Services that store NO local state. All session data, user context, and temporary state lives in external stores (Redis, DB). Any server can handle any request for any user. Enables seamless horizontal scaling.",
+      why:"Core requirement for horizontal scaling and zero-downtime deploys. Stateless servers can be killed/restarted anytime. Auto-scaling becomes trivial.",
+      examples:"• Stateless API: Express server → Redis (session) → PostgreSQL (data)\n• JWT tokens: client holds state (self-contained, no server session)\n• Shopping cart: stored in Redis with cart_id key, not in server RAM\n• Upload: S3 pre-signed URL (no file stored on server)\n• Pattern: req → any server → external state → response",
+      tradeoffs:"✅ Auto-scaling: add/remove servers anytime\n✅ Blue-green deploys\n✅ Fault tolerance (kill server, no data loss)\n❌ Latency: external state fetch\n❌ Cost: Redis cluster needed\n❌ Complexity: distributed state management",
+      numbers:"Session in Redis: 1-5ms latency vs local RAM <0.1ms\n1M sessions @ 5KB each = 5GB Redis memory\nTypical: 1 Redis cluster serves 10K app instances" },
+    { term:"Database Connection Pooling",
+      def:"Reuse expensive database connections instead of creating new connection per request. Tools: PgBouncer (Postgres), HikariCP (Java), SqlConnection pool (.NET). Connection = TCP handshake + auth + memory allocation. Pool maintains warm connections.",
+      why:"Database has hard limit on concurrent connections. Each connection costs 5-10MB RAM. 10K app servers × 10 connections each = 100K connections crashes the DB. Pool multiplexes app threads over fewer DB connections.",
+      examples:"• PgBouncer: sits between app and Postgres, pools connections\n• HikariCP: Java pool, default in Spring Boot\n• Config: minIdle=10, maxPoolSize=50, connectionTimeout=30s\n• Pattern: App (10K instances) → PgBouncer (100 DB connections) → Postgres\n• AWS RDS Proxy: managed connection pooler",
+      tradeoffs:"✅ Reduce DB connection overhead\n✅ Protects DB from connection exhaustion\n✅ Faster queries (connection already warm)\n❌ Added latency (pooler hop)\n❌ Transaction pinning (session state in connection)\n❌ Config complexity",
+      numbers:"Postgres max_connections: default 100, practical max ~1000\nConnection cost: ~10MB RAM, 20-50ms to establish\n1K app instances × 10 connections = 10K → pool to 100\nPgBouncer can handle 10K client connections → 100 DB connections" },
   ]},
   { name:"Reliability & HA", color:C.blue, icon:"🛡️", items:[
     { term:"Availability Nines", def:"99% = 87.6hr/yr | 99.9% = 8.7hr | 99.99% = 52min | 99.999% = 5.3min | 99.9999% = 31sec. Each nine costs exponentially more.", why:"Know the math — interviewers ask this" },
@@ -348,11 +373,36 @@ function ConceptsContent() {
                   style={{ overflow: "hidden" }}
                 >
                   <div style={{ padding:"0 16px 14px 44px" }}>
-                    <p style={{ color:C.muted, fontSize:13, lineHeight:1.7, margin:"0 0 10px" }}>{item.def}</p>
-                    <div style={{ background:`${g.color}15`, borderRadius:8, padding:"8px 12px", display:"inline-block" }}>
-                      <span style={{ color:g.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>WHY IT MATTERS  </span>
+                    <div style={{ background:C.bg, borderRadius:10, padding:14, marginBottom:12 }}>
+                      <div style={{ color:g.color, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>📖 DEFINITION</div>
+                      <p style={{ color:C.muted, fontSize:13, lineHeight:1.7, margin:0 }}>{item.def}</p>
+                    </div>
+
+                    <div style={{ background:`${g.color}15`, border:`1px solid ${g.color}33`, borderRadius:8, padding:"10px 14px", marginBottom:12 }}>
+                      <span style={{ color:g.color, fontSize:11, fontWeight:800, fontFamily:"monospace" }}>💡 WHY IT MATTERS  </span>
                       <span style={{ color:C.text, fontSize:13 }}>{item.why}</span>
                     </div>
+
+                    {item.examples && (
+                      <div style={{ background:C.bg, borderRadius:10, padding:14, marginBottom:12 }}>
+                        <div style={{ color:C.green, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>✅ REAL-WORLD EXAMPLES</div>
+                        <pre style={{ color:C.muted, fontSize:12, lineHeight:1.8, margin:0, fontFamily:"'JetBrains Mono',monospace", whiteSpace:"pre-wrap" }}>{item.examples}</pre>
+                      </div>
+                    )}
+
+                    {item.tradeoffs && (
+                      <div style={{ background:`${C.red}0f`, borderRadius:10, padding:14, marginBottom:12 }}>
+                        <div style={{ color:C.red, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>⚖️ TRADEOFFS</div>
+                        <pre style={{ color:C.muted, fontSize:12, lineHeight:1.8, margin:0, fontFamily:"'JetBrains Mono',monospace", whiteSpace:"pre-wrap" }}>{item.tradeoffs}</pre>
+                      </div>
+                    )}
+
+                    {item.numbers && (
+                      <div style={{ background:`${C.accent}0f`, borderRadius:10, padding:14 }}>
+                        <div style={{ color:C.accent, fontSize:11, fontWeight:800, fontFamily:"monospace", marginBottom:8 }}>📊 NUMBERS & SCALE</div>
+                        <pre style={{ color:C.muted, fontSize:12, lineHeight:1.8, margin:0, fontFamily:"'JetBrains Mono',monospace", whiteSpace:"pre-wrap" }}>{item.numbers}</pre>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
